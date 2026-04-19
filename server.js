@@ -1,49 +1,38 @@
-const express = require('express');
-const puppeteer = require('puppeteer');
+const express = require("express");
+const { chromium } = require("playwright");
 
 const app = express();
+app.use(express.json());
 
-app.get('/pdf', async (req, res) => {
-  const { url } = req.query;
-
-  if (!url) {
-    return res.status(400).send('URL is required');
-  }
+app.post("/pdf", async (req, res) => {
+  const { url } = req.body;
 
   try {
-    const browser = await puppeteer.launch({
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  headless: true
-});
-
-    const page = await browser.newPage();
-
-    await page.goto(url, {
-      waitUntil: 'networkidle0',
-      timeout: 30000,
+    const browser = await chromium.launch({
+      args: ["--no-sandbox"]
     });
 
+    const page = await browser.newPage();
+    await page.goto(url, { waitUntil: "networkidle" });
+
     const pdf = await page.pdf({
-      format: 'A4',
-      printBackground: true,
+      format: "A4",
+      printBackground: true
     });
 
     await browser.close();
 
     res.set({
-      'Content-Type': 'application/pdf',
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline; filename=result.pdf"
     });
 
     res.send(pdf);
 
   } catch (err) {
     console.error(err);
-    res.status(500).send('PDF generation failed');
+    res.status(500).send("PDF生成エラー");
   }
 });
 
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(10000, () => console.log("Server running"));
