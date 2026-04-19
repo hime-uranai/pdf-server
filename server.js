@@ -11,15 +11,10 @@ app.get('/pdf', async (req, res) => {
   }
 
   try {
-    const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
-
-    const page = await browser.newPage();
-
-    await page.goto(url, {
-      waitUntil: 'networkidle0',
-    });
+   const browser = await puppeteer.launch({
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  headless: true
+});
 
     const pdf = await page.pdf({
       format: 'A4',
