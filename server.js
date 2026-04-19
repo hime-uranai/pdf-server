@@ -13,7 +13,12 @@ app.post("/pdf", async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle" });
+    await page.goto(url, {
+  waitUntil: "domcontentloaded",
+  timeout: 60000
+});
+
+await page.waitForTimeout(5000);
 
     const pdf = await page.pdf({
       format: "A4",
