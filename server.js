@@ -42,7 +42,7 @@ app.post("/pdf", async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("PDF生成エラー");
+    res.status(500).send(err.toString());
   }
 });
 
