@@ -27,9 +27,17 @@ app.post("/pdf", async (req, res) => {
     await page.emulateMedia({ media: "screen" });
 
     const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true
-    });
+  format: "A4",
+  printBackground: true,
+
+  scale: 1,              // ←拡大率
+  margin: {
+    top: "0mm",
+    bottom: "0mm",
+    left: "0mm",
+    right: "0mm"
+  }
+});
 
     await browser.close();
 
