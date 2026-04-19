@@ -13,15 +13,16 @@ app.get('/pdf', async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({
-      args: chromium.args,
+      args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
       executablePath: await chromium.executablePath,
-      headless: chromium.headless,
+      headless: true,
     });
 
     const page = await browser.newPage();
 
     await page.goto(url, {
-      waitUntil: 'networkidle2',
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
     });
 
     const pdf = await page.pdf({
@@ -38,7 +39,7 @@ app.get('/pdf', async (req, res) => {
     res.send(pdf);
 
   } catch (err) {
-    console.error(err);
+    console.error('🔥 ERROR:', err);
     res.status(500).send('PDF generation failed');
   }
 });
