@@ -1,5 +1,6 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const chromium = require('chrome-aws-lambda');
+const puppeteer = require('puppeteer-core');
 
 const app = express();
 
@@ -12,9 +13,10 @@ app.get('/pdf', async (req, res) => {
 
   try {
     const browser = await puppeteer.launch({
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  headless: 'new'
-});
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+    });
 
     const page = await browser.newPage();
 
