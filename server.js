@@ -13,12 +13,18 @@ app.post("/pdf", async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, {
-  waitUntil: "domcontentloaded",
-  timeout: 60000
-});
 
-await page.waitForTimeout(5000);
+    // ⭐ ここが重要（修正済み）
+    await page.goto(url, {
+      waitUntil: "domcontentloaded",
+      timeout: 60000
+    });
+
+    // ⭐ 描画待ち（超重要）
+    await page.waitForTimeout(5000);
+
+    // ⭐ PDF用に画面モード
+    await page.emulateMedia({ media: "screen" });
 
     const pdf = await page.pdf({
       format: "A4",
