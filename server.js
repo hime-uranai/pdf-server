@@ -12,9 +12,13 @@ app.get('/pdf', async (req, res) => {
   }
 
   try {
+    const executablePath = await chromium.executablePath;
+
+    console.log('🔥 executablePath:', executablePath);
+
     const browser = await puppeteer.launch({
       args: chromium.args,
-      executablePath: await chromium.executablePath,
+      executablePath: executablePath,
       headless: chromium.headless,
     });
 
