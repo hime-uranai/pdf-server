@@ -1,6 +1,6 @@
 const express = require('express');
-const chromium = require('chrome-aws-lambda');
 const puppeteer = require('puppeteer-core');
+const chromium = require('chrome-aws-lambda');
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.get('/pdf', async (req, res) => {
     const page = await browser.newPage();
 
     await page.goto(url, {
-      waitUntil: 'networkidle0',
+      waitUntil: 'networkidle2',
     });
 
     const pdf = await page.pdf({
