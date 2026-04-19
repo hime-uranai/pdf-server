@@ -11,7 +11,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "express": "^5.2.1",
-    "puppeteer": "^24.41.0"
-  }
+  "express": "^5.2.1",
+  "puppeteer-core": "10.4.0",
+  "chrome-aws-lambda": "10.1.0"
+}
 }

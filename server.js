@@ -1,5 +1,6 @@
 const express = require('express');
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
+const chromium = require('chrome-aws-lambda');
 
 const app = express();
 
@@ -11,10 +12,18 @@ app.get('/pdf', async (req, res) => {
   }
 
   try {
-   const browser = await puppeteer.launch({
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  headless: true
-});
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      executablePath: await chromium.executablePath,
+      headless: true,
+    });
+
+    const page = await browser.newPage();
+
+    await page.goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    });
 
     const pdf = await page.pdf({
       format: 'A4',
@@ -30,7 +39,7 @@ app.get('/pdf', async (req, res) => {
     res.send(pdf);
 
   } catch (err) {
-    console.error('🔥 ERROR:', err);
+    console.error(err);
     res.status(500).send('PDF generation failed');
   }
 });
