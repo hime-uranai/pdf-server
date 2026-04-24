@@ -33,10 +33,16 @@ app.post("/pdf", async (req, res) => {
     await page.waitForTimeout(2000);
 
     // 🔥 PDF（1回だけ）
-    const pdf = await page.pdf({
+   const pdf = await page.pdf({
   format: "A4",
   printBackground: true,
-  scale: 1.7   // ←まずこれ
+  scale: 1.6,
+  margin: {
+    top: "0mm",
+    bottom: "0mm",
+    left: "0mm",
+    right: "0mm"
+  }
 });
 
     await browser.close();
