@@ -15,10 +15,10 @@ app.post("/pdf", async (req, res) => {
     const page = await browser.newPage();
 
     // ⭐ ここが重要（修正済み）
-    await page.goto(url, {
-      waitUntil: "domcontentloaded",
-      timeout: 60000
-    });
+   await page.goto(url, {
+  waitUntil: "networkidle",
+  timeout: 60000
+});
 
     // ⭐ 描画待ち（超重要）
     await page.waitForTimeout(5000);
@@ -26,16 +26,8 @@ app.post("/pdf", async (req, res) => {
     // ⭐ PDF用に画面モード
    
 const pdf = await page.pdf({
-  width: "600px",
-  height: "800px",
-  printBackground: true,
-  scale: 2,
-  margin: {
-    top: "0mm",
-    bottom: "0mm",
-    left: "0mm",
-    right: "0mm"
-  }
+  format: "A4",
+  printBackground: true
 });
 
     await browser.close();
