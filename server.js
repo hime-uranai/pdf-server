@@ -26,8 +26,8 @@ app.post("/pdf", async (req, res) => {
     // ⭐ PDF用に画面モード
    
 const pdf = await page.pdf({
-  width: "430px",
-  height: "auto",
+  width: "600px",
+  height: "800px",
   printBackground: true,
   scale: 2,
   margin: {
