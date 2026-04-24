@@ -14,27 +14,29 @@ app.post("/pdf", async (req, res) => {
 
     const page = await browser.newPage();
 
-    // ⭐ ここが重要（修正済み）
-   await page.goto(url, {
-  waitUntil: "networkidle",
-  timeout: 60000
-});
+    // 🔥 読み込み
+    await page.goto(url, {
+      waitUntil: "networkidle",
+      timeout: 60000
+    });
 
-// ⭐ これに変更（本命）
-await page.waitForSelector("#result", { timeout: 30000 });
+    // 🔥 DOM完成待ち
+    await page.waitForSelector("#result", { timeout: 30000 });
 
-// ⭐ さらに安定させるなら追加
-await page.waitForFunction(() => {
-  const el = document.querySelector("#result");
-  return el && el.innerText.length > 50;
-});
+    // 🔥 中身が入るまで待つ（これが本命）
+    await page.waitForFunction(() => {
+      const el = document.querySelector("#result");
+      return el && el.innerText.length > 50;
+    });
 
-    // ⭐ PDF用に画面モード
-   
-const pdf = await page.pdf({
-  format: "A4",
-  printBackground: true
-});
+    // 🔥 レイアウト安定待ち
+    await page.waitForTimeout(2000);
+
+    // 🔥 PDF（1回だけ）
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true
+    });
 
     await browser.close();
 
