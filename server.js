@@ -24,13 +24,16 @@ app.post("/pdf", async (req, res) => {
     await page.waitForTimeout(5000);
 
     // ⭐ PDF用に画面モード
-    await page.emulateMedia({ media: "screen" });
-
-    const pdf = await page.pdf({
-  format: "A4",
+   await page.setViewportSize({
+  width: 430,
+  height: 932
+});
+await page.emulateMedia({ media: "screen" });
+const pdf = await page.pdf({
+  width: "430px",
+  height: "932px",
   printBackground: true,
-
-  scale: 1,              // ←拡大率
+  scale: 2,
   margin: {
     top: "0mm",
     bottom: "0mm",
@@ -38,6 +41,7 @@ app.post("/pdf", async (req, res) => {
     right: "0mm"
   }
 });
+  
 
     await browser.close();
 
