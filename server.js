@@ -27,7 +27,7 @@ app.post("/pdf", async (req, res) => {
    
 const pdf = await page.pdf({
   width: "430px",
-  height: "650px",
+  height: "700px",
   printBackground: true,
   scale: 2,
   margin: {
