@@ -20,8 +20,14 @@ app.post("/pdf", async (req, res) => {
   timeout: 60000
 });
 
-    // ⭐ 描画待ち（超重要）
-    await page.waitForTimeout(5000);
+// ⭐ これに変更（本命）
+await page.waitForSelector("#result", { timeout: 30000 });
+
+// ⭐ さらに安定させるなら追加
+await page.waitForFunction(() => {
+  const el = document.querySelector("#result");
+  return el && el.innerText.length > 50;
+});
 
     // ⭐ PDF用に画面モード
    
