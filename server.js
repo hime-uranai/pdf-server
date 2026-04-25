@@ -29,7 +29,10 @@ app.post("/pdf", async (req, res) => {
     });
 
     // 🔥 DOM生成待ち
-    await page.waitForSelector("#result", { timeout: 30000 });
+    await page.waitForFunction(() => {
+  const el = document.querySelector("#result");
+  return el && el.innerText.length > 50;
+}, { timeout: 30000 });
 
     // 🔥 ページ構築完了待ち（要素数）
     await page.waitForFunction(() => {
