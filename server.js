@@ -33,44 +33,47 @@ await page.goto(targetUrl, {
 });
 
 // 🔥 DOM生成待ち
+// DOM生成
+await page.waitForSelector("#result", { timeout: 30000 });
+
+// 内容入るまで
 await page.waitForFunction(() => {
   const el = document.querySelector("#result");
-  return el && el.innerText.length > 50;
-}, { timeout: 30000 });
+  return el && el.innerText.length > 200;
+});
 
-// 🔥 ページ構築
+// 高さチェック（これ重要）
 await page.waitForFunction(() => {
   const el = document.querySelector("#result");
-  return el && el.children.length > 0;
+  return el && el.offsetHeight > 1500;
 });
 
-// 🔥 フォント
-await page.waitForFunction(() => document.fonts.status === "loaded");
+// フォント
+await page.evaluate(() => document.fonts.ready);
 
-// 🔥 画像
+// 画像
 await page.waitForFunction(() => {
-  const imgs = Array.from(document.images);
-  return imgs.every(img => img.complete);
+  return Array.from(document.images).every(img => img.complete && img.naturalHeight > 0);
 });
 
-// 🔥 安定
-await page.waitForTimeout(2000);
+// 最後の安定待ち
+await page.waitForTimeout(3000);
 
-await page.evaluate(() => {
-  window.scrollTo(0, 0);
-});
+// スクロールリセット
+await page.evaluate(() => window.scrollTo(0, 0));
 
-// 🔥 PDFモード
+// PDFモード
 await page.evaluate(() => {
   document.documentElement.classList.add("pdf-mode");
   document.body.classList.add("pdf-mode");
 });
 
-await page.waitForTimeout(1000);
+// 反映待ち
+await page.waitForTimeout(1500);
 
-// 🔥 ここ重要
+// ←ここ重要（printじゃなくscreen）
 await page.emulateMedia({ media: "screen" });
-
+    
 const pdf = await page.pdf({
   format: "A4",
   printBackground: true,
