@@ -32,6 +32,15 @@ app.post("/pdf", async (req, res) => {
     // 🔥 レイアウト安定待ち
     await page.waitForTimeout(2000);
 
+    // 🔥 PDFモードON
+await page.evaluate(() => {
+  document.body.classList.add("pdf-mode");
+});
+
+// 🔥 printモード
+await page.emulateMedia({ media: "print" });
+
+    
     // 🔥 PDF（1回だけ）
   const pdf = await page.pdf({
   format: "A4",
