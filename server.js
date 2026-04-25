@@ -36,17 +36,10 @@ await page.goto(targetUrl, {
 // DOM生成
 await page.waitForSelector("#result", { timeout: 30000 });
 
-// 内容入るまで
 await page.waitForFunction(() => {
   const el = document.querySelector("#result");
   return el && el.innerText.length > 200;
-});
-
-// 高さチェック（これ重要）
-await page.waitForFunction(() => {
-  const el = document.querySelector("#result");
-  return el && el.offsetHeight > 1500;
-});
+}, { timeout: 30000 });
 
 // フォント
 await page.evaluate(() => document.fonts.ready);
@@ -54,9 +47,9 @@ await page.evaluate(() => document.fonts.ready);
 // 画像
 await page.waitForFunction(() => {
   return Array.from(document.images).every(img => img.complete && img.naturalHeight > 0);
-});
+}, { timeout: 30000 });
 
-// 最後の安定待ち
+// 安定待ち
 await page.waitForTimeout(3000);
 
 // スクロールリセット
