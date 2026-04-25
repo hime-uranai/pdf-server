@@ -7,48 +7,73 @@ app.use(express.json());
 app.post("/pdf", async (req, res) => {
   const { url } = req.body;
 
+  let browser;
+
   try {
-    const browser = await chromium.launch({
+    browser = await chromium.launch({
       args: ["--no-sandbox"]
     });
 
     const page = await browser.newPage();
 
-    // 🔥 読み込み
+    // 🔥 A4基準のviewport
+    await page.setViewportSize({
+      width: 1240,
+      height: 1754
+    });
+
+    // 🔥 ページ読み込み
     await page.goto(url, {
       waitUntil: "networkidle",
       timeout: 60000
     });
 
-    // 🔥 DOM完成待ち
+    // 🔥 DOM生成待ち
     await page.waitForSelector("#result", { timeout: 30000 });
 
-    // 🔥 中身が入るまで待つ（これが本命）
+    // 🔥 ページ構築完了待ち（要素数）
     await page.waitForFunction(() => {
       const el = document.querySelector("#result");
-      return el && el.innerText.length > 50;
+      return el && el.children.length > 3;
+    });
+
+    // 🔥 フォント完全読み込み
+    await page.waitForFunction(() => document.fonts.status === "loaded");
+
+    // 🔥 画像完全読み込み
+    await page.waitForFunction(() => {
+      const imgs = Array.from(document.images);
+      return imgs.every(img => img.complete);
     });
 
     // 🔥 レイアウト安定待ち
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(500);
+
+    // 🔥 スクロールリセット（重要）
+    await page.evaluate(() => {
+      window.scrollTo(0, 0);
+    });
 
     // 🔥 PDFモードON
-await page.evaluate(() => {
-  document.documentElement.classList.add("pdf-mode"); // ←追加🔥
-  document.body.classList.add("pdf-mode");
-});
+    await page.evaluate(() => {
+      document.documentElement.classList.add("pdf-mode");
+      document.body.classList.add("pdf-mode");
+    });
 
-// 🔥 printモード
-await page.emulateMedia({ media: "print" });
+    // 🔥 CSS反映待ち
+    await page.waitForTimeout(800);
 
-    
-    // 🔥 PDF（1回だけ）
-  const pdf = await page.pdf({
-  format: "A4",
-  printBackground: true,
-  margin: { top: 0, bottom: 0, left: 0, right: 0 }
-});
+    // 🔥 printモード
+    await page.emulateMedia({ media: "print" });
 
+    // 🔥 PDF生成
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: 0, bottom: 0, left: 0, right: 0 }
+    });
+
+    // 🔥 ブラウザ閉じる
     await browser.close();
 
     res.set({
@@ -59,7 +84,10 @@ await page.emulateMedia({ media: "print" });
     res.send(pdf);
 
   } catch (err) {
-    console.error(err);
+    console.error("PDF ERROR:", err);
+
+    if (browser) await browser.close();
+
     res.status(500).send(err.toString());
   }
 });
