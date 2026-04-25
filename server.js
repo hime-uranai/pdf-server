@@ -23,40 +23,44 @@ app.post("/pdf", async (req, res) => {
     });
 
     // 🔥 ページ読み込み
-    await page.goto(url, {
-      waitUntil: "networkidle",
-      timeout: 60000
-    });
+    const targetUrl = url.includes("pdf=1")
+  ? url
+  : url + (url.includes("?") ? "&" : "?") + "pdf=1";
 
-    // 🔥 DOM生成待ち
-    await page.waitForFunction(() => {
+await page.goto(targetUrl, {
+  waitUntil: "networkidle",
+  timeout: 60000
+});
+
+// 🔥 DOM生成待ち
+await page.waitForFunction(() => {
   const el = document.querySelector("#result");
   return el && el.innerText.length > 50;
 }, { timeout: 30000 });
 
-    // 🔥 ページ構築完了待ち（要素数）
-    await page.waitForFunction(() => {
-      const el = document.querySelector("#result");
-      return el && el.children.length > 3;
-    });
+// 🔥 ページ構築
+await page.waitForFunction(() => {
+  const el = document.querySelector("#result");
+  return el && el.children.length > 0;
+});
 
-    // 🔥 フォント完全読み込み
-    await page.waitForFunction(() => document.fonts.status === "loaded");
+// 🔥 フォント
+await page.waitForFunction(() => document.fonts.status === "loaded");
 
-    // 🔥 画像完全読み込み
-    await page.waitForFunction(() => {
-      const imgs = Array.from(document.images);
-      return imgs.every(img => img.complete);
-    });
+// 🔥 画像
+await page.waitForFunction(() => {
+  const imgs = Array.from(document.images);
+  return imgs.every(img => img.complete);
+});
 
-    // 🔥 レイアウト安定待ち
-    await page.waitForTimeout(2000);
+// 🔥 安定
+await page.waitForTimeout(2000);
 
 await page.evaluate(() => {
   window.scrollTo(0, 0);
 });
 
-// PDFモード
+// 🔥 PDFモード
 await page.evaluate(() => {
   document.documentElement.classList.add("pdf-mode");
   document.body.classList.add("pdf-mode");
@@ -64,7 +68,7 @@ await page.evaluate(() => {
 
 await page.waitForTimeout(1000);
 
-// 👇ここ追加🔥
+// 🔥 ここ重要
 await page.emulateMedia({ media: "screen" });
 
 const pdf = await page.pdf({
@@ -72,7 +76,6 @@ const pdf = await page.pdf({
   printBackground: true,
   margin: { top: 0, bottom: 0, left: 0, right: 0 }
 });
-
     // 🔥 ブラウザ閉じる
     await browser.close();
 
