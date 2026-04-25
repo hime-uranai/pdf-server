@@ -34,6 +34,7 @@ app.post("/pdf", async (req, res) => {
 
     // 🔥 PDFモードON
 await page.evaluate(() => {
+  document.documentElement.classList.add("pdf-mode"); // ←追加🔥
   document.body.classList.add("pdf-mode");
 });
 
