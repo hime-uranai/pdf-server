@@ -47,31 +47,28 @@ app.post("/pdf", async (req, res) => {
     });
 
     // 🔥 レイアウト安定待ち
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(2000);
 
-    // 🔥 スクロールリセット（重要）
-    await page.evaluate(() => {
-      window.scrollTo(0, 0);
-    });
+await page.evaluate(() => {
+  window.scrollTo(0, 0);
+});
 
-    // 🔥 PDFモードON
-    await page.evaluate(() => {
-      document.documentElement.classList.add("pdf-mode");
-      document.body.classList.add("pdf-mode");
-    });
+// PDFモード
+await page.evaluate(() => {
+  document.documentElement.classList.add("pdf-mode");
+  document.body.classList.add("pdf-mode");
+});
 
-    // 🔥 CSS反映待ち
-    await page.waitForTimeout(800);
+await page.waitForTimeout(1000);
 
-    // 🔥 printモード
-    await page.emulateMedia({ media: "print" });
+// 👇ここ追加🔥
+await page.emulateMedia({ media: "screen" });
 
-    // 🔥 PDF生成
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: 0, bottom: 0, left: 0, right: 0 }
-    });
+const pdf = await page.pdf({
+  format: "A4",
+  printBackground: true,
+  margin: { top: 0, bottom: 0, left: 0, right: 0 }
+});
 
     // 🔥 ブラウザ閉じる
     await browser.close();
