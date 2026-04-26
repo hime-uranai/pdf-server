@@ -64,13 +64,8 @@ console.log("⏳ 安定待ち");
     await page.evaluate(() => document.fonts.ready);
     console.log("🔤 フォント読み込み完了");
 
-    // 画像
-    await page.waitForFunction(() => {
-      return Array.from(document.images)
-        .every(img => img.complete && img.naturalHeight > 0);
-    }, { timeout: 30000 });
-
-    console.log("🖼️ 画像読み込み完了");
+   
+  
 
     // 安定待ち
     await page.waitForTimeout(3000);
