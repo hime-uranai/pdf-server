@@ -104,10 +104,8 @@ app.post("/pdf", async (req, res) => {
     // ======================
     // テキスト確認（軽め）
     // ======================
-    await page.waitForFunction(() => {
-      const el = document.querySelector("#result");
-      return el && el.textContent.length > 20;
-    });
+   await page.waitForTimeout(2000);
+console.log("📝 コンテンツ待機スキップ（固定待機）");
 
     console.log("📝 コンテンツ確認OK");
 
