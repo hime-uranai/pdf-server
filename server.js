@@ -43,38 +43,6 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📄 ページ読み込み完了");
 
-    await page.addStyleTag({
-  content: `
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap');
-
-    * {
-      font-family: 'Noto Serif JP', serif !important;
-    }
-  `
-});
-
-await page.evaluate(() => document.fonts.ready);
-console.log("🔤 フォント完全固定");
-
-
-// ===== 行数安定CSS =====
-await page.addStyleTag({
-  content: `
-    .content {
-      line-height: 1.9 !important;
-      font-size: 18px !important;
-      letter-spacing: 0.02em;
-      white-space: normal !important;
-    }
-
-    * {
-      word-break: break-word;
-    }
-  `
-});
-
-console.log("📏 行数固定CSS適用");
-
     // DOM生成待ち
     await page.waitForSelector("#result", {
   state: "attached",
