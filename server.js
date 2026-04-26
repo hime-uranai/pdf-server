@@ -51,13 +51,10 @@ app.post("/pdf", async (req, res) => {
     console.log("📦 #result検出");
 
     // テキスト量チェック
-    await page.waitForFunction(() => {
-  const el = document.querySelector("#result");
-  return el && el.innerText.length > 100;
-}, { timeout: 30000 });
+   
 
-    console.log("📝 コンテンツ十分");
-   await page.waitForTimeout(2000);
+    
+   await page.waitForTimeout(3000);
 console.log("⏳ 安定待ち");
     
 
