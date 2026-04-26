@@ -52,19 +52,16 @@ app.post("/pdf", async (req, res) => {
 
     // テキスト量チェック
     await page.waitForFunction(() => {
-      const el = document.querySelector("#result");
-      return el && el.innerText.length > 50;
-    }, { timeout: 30000 });
+  const el = document.querySelector("#result");
+  return el && el.innerText.length > 100;
+}, { timeout: 30000 });
 
     console.log("📝 コンテンツ十分");
+   await page.waitForTimeout(2000);
+console.log("⏳ 安定待ち");
+    
 
-    // 高さチェック（超重要）
-    await page.waitForFunction(() => {
-      const el = document.querySelector("#result");
-      return el && el.offsetHeight > 1500;
-    }, { timeout: 30000 });
-
-    console.log("📏 レイアウト高さOK");
+    
 
     // フォント
     await page.evaluate(() => document.fonts.ready);
