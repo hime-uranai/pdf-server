@@ -22,7 +22,6 @@ app.post("/pdf", async (req, res) => {
 
     console.log("🖥️ ブラウザ起動完了");
 
-    // ブラウザと同じ表示サイズ
     await page.setViewportSize({
       width: 1240,
       height: 1754
@@ -47,24 +46,29 @@ app.post("/pdf", async (req, res) => {
     console.log("📄 ページ読み込み完了");
 
     // ======================
-    // フォント固定（明朝）
+    // フォント適用（明朝）
     // ======================
     await page.addStyleTag({
       content: `
         @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap');
-
         * {
           font-family: 'Noto Serif JP', serif !important;
         }
       `
     });
 
-    await page.evaluate(() => document.fonts.ready);
+    console.log("🔤 フォント適用");
 
-    console.log("🔤 フォント固定完了");
+    // 🔥 フォント確定＋レイアウト確定（超重要）
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      document.body.offsetHeight;
+    });
+
+    console.log("🔤 フォント＆レイアウト確定");
 
     // ======================
-    // DOM生成待ち
+    // DOM待ち
     // ======================
     await page.waitForSelector("#result", {
       state: "attached",
@@ -89,7 +93,7 @@ app.post("/pdf", async (req, res) => {
     console.log("📏 幅固定完了");
 
     // ======================
-    // 行間固定（ズレ防止）
+    // 行間固定
     // ======================
     await page.addStyleTag({
       content: `
@@ -102,15 +106,7 @@ app.post("/pdf", async (req, res) => {
     console.log("📐 行間固定完了");
 
     // ======================
-    // テキスト確認（軽め）
-    // ======================
-   await page.waitForTimeout(2000);
-console.log("📝 コンテンツ待機スキップ（固定待機）");
-
-    console.log("📝 コンテンツ確認OK");
-
-    // ======================
-    // 画像読み込み
+    // 画像待ち
     // ======================
     await page.waitForFunction(() => {
       return Array.from(document.images)
@@ -120,7 +116,7 @@ console.log("📝 コンテンツ待機スキップ（固定待機）");
     console.log("🖼️ 画像読み込み完了");
 
     // ======================
-    // 安定待ち
+    // 軽く安定待ち
     // ======================
     await page.waitForTimeout(1500);
     console.log("⏳ 安定待ち完了");
