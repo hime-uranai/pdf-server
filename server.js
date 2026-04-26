@@ -61,7 +61,17 @@ await page.evaluate(async () => {
 
 console.log("🔤 フォント完全固定");    
 
-    
+// 🔥 ここに追加（←ここが正解）
+await page.addStyleTag({
+  content: `
+    .content {
+      line-height: 1.8 !important;
+      box-sizing: border-box !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+  `
+});    
 
     // DOM生成待ち
    await page.waitForSelector("#result", {
