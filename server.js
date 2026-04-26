@@ -44,13 +44,16 @@ app.post("/pdf", async (req, res) => {
     console.log("📄 ページ読み込み完了");
 
     // DOM生成待ち
-    await page.waitForSelector("#result", { timeout: 30000 });
+    await page.waitForSelector("#result", {
+  state: "attached",
+  timeout: 30000
+});
     console.log("📦 #result検出");
 
     // テキスト量チェック
     await page.waitForFunction(() => {
       const el = document.querySelector("#result");
-      return el && el.innerText.length > 200;
+      return el && el.innerText.length > 50;
     }, { timeout: 30000 });
 
     console.log("📝 コンテンツ十分");
