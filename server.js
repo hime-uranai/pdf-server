@@ -44,21 +44,22 @@ await page.goto(targetUrl, {
 
 console.log("📄 ページ読み込み完了");
 
-// 🔥 ここに入れる（←今の位置で正解）
 await page.addStyleTag({
   content: `
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap');
+
     * {
-      font-family: "Noto Sans JP", sans-serif !important;
+      font-family: 'Noto Sans JP', sans-serif !important;
     }
   `
 });
 
-await page.evaluate(() => document.fonts.ready);
+await page.evaluate(async () => {
+  await document.fonts.ready;
+  document.body.offsetHeight; // ←強制レイアウト確定
+});
 
-
-console.log("🔤 フォント固定完了");
-
- 
+console.log("🔤 フォント完全固定");    
 
     
 
@@ -96,9 +97,7 @@ await page.evaluate(() => {
 
     console.log("📏 レイアウト高さOK");
 
-    // フォント
-    await page.evaluate(() => document.fonts.ready);
-    console.log("🔤 フォント読み込み完了");
+    
 
     // 画像
     await page.waitForFunction(() => {
