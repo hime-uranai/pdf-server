@@ -9,28 +9,39 @@ app.post("/pdf", async (req, res) => {
 
   let browser;
 
+  console.log("====================================");
+  console.log("🚀 PDF生成リクエスト受信");
+  console.log("🌐 元URL:", url);
+
   try {
     browser = await chromium.launch({
       args: ["--no-sandbox"]
     });
 
-    const page = await browser.newPage();
+    console.log("🟢 browser launch");
 
-    // ブラウザと同じ前提サイズ
+    const page = await browser.newPage();
+    console.log("🟢 new page");
+
+    // viewport
     await page.setViewportSize({
       width: 1240,
       height: 1754
     });
+    console.log("📐 viewport設定完了");
 
     const targetUrl = url.includes("pdf=1")
       ? url
       : url + (url.includes("?") ? "&" : "?") + "pdf=1";
+
+    console.log("🌐 targetURL:", targetUrl);
 
     // 読み込み
     await page.goto(targetUrl, {
       waitUntil: "domcontentloaded",
       timeout: 60000
     });
+    console.log("📄 ページ読み込み完了");
 
     // ===== フォント固定（明朝）=====
     await page.addStyleTag({
@@ -44,8 +55,9 @@ app.post("/pdf", async (req, res) => {
     });
 
     await page.evaluate(() => document.fonts.ready);
+    console.log("🔤 フォント固定完了");
 
-    // ===== 行間固定（17行維持）=====
+    // ===== 行間固定 =====
     await page.addStyleTag({
       content: `
         .content {
@@ -56,14 +68,16 @@ app.post("/pdf", async (req, res) => {
         }
       `
     });
+    console.log("🧾 行間固定適用");
 
-    // DOM完成待ち
+    // DOM待ち
     await page.waitForSelector("#result", {
       state: "attached",
       timeout: 30000
     });
+    console.log("📦 #result検出");
 
-    // ===== 幅固定（これが最重要）=====
+    // ===== 幅固定（最重要）=====
     await page.evaluate(() => {
       const el = document.querySelector('.content');
       if (el) {
@@ -73,37 +87,47 @@ app.post("/pdf", async (req, res) => {
         document.head.appendChild(style);
       }
     });
+    console.log("📏 width固定完了");
 
-    // テキスト入った確認だけ
+    // テキスト確認
     await page.waitForFunction(() => {
       const el = document.querySelector("#result");
       return el && el.textContent.length > 50;
     });
+    console.log("📝 テキスト確認OK");
 
-    // 画像読み込みだけ待つ
+    // 画像待ち
     await page.waitForFunction(() => {
       return Array.from(document.images)
         .every(img => img.complete && img.naturalHeight > 0);
     });
+    console.log("🖼️ 画像読み込み完了");
 
-    // 軽く安定待ち
+    // 安定待ち
     await page.waitForTimeout(1500);
+    console.log("⏳ 安定待ち完了");
 
     // PDFモード
     await page.evaluate(() => {
       document.documentElement.classList.add("pdf-mode");
       document.body.classList.add("pdf-mode");
     });
+    console.log("📄 PDFモード適用");
 
-    // screenで描画
+    // screen
     await page.emulateMedia({ media: "screen" });
+    console.log("🖥️ media=screen");
 
-    // ===== PDF出力（そのまま）=====
+    // ===== PDF =====
+    console.log("🟡 PDF生成開始");
+
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
       margin: { top: 0, bottom: 0, left: 0, right: 0 }
     });
+
+    console.log("🟢 PDF生成完了");
 
     res.set({
       "Content-Type": "application/pdf",
@@ -111,12 +135,17 @@ app.post("/pdf", async (req, res) => {
     });
 
     res.send(pdf);
+    console.log("📤 レスポンス送信完了");
 
   } catch (err) {
-    console.error(err);
+    console.error("🔥 ERROR:", err);
     res.status(500).send(err.toString());
   } finally {
-    if (browser) await browser.close();
+    if (browser) {
+      await browser.close();
+      console.log("🧹 ブラウザクローズ");
+    }
+    console.log("====================================");
   }
 });
 
