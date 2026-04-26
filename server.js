@@ -55,6 +55,7 @@ await page.addStyleTag({
 
 await page.evaluate(() => document.fonts.ready);
 
+
 console.log("🔤 フォント固定完了");
 
  
@@ -68,6 +69,18 @@ console.log("🔤 フォント固定完了");
 });
     console.log("📦 #result検出");
 
+    // 🔥 幅固定（ここに移動）
+await page.evaluate(() => {
+  const el = document.querySelector('.content');
+  if(el){
+    const width = el.clientWidth;
+    const style = document.createElement('style');
+    style.innerHTML = `.content { width: ${width}px !important; }`;
+    document.head.appendChild(style);
+  }
+});
+
+   await page.evaluate(() => document.body.offsetHeight); 
     // テキスト量チェック
     await page.waitForFunction(() => {
   const el = document.querySelector("#result");
@@ -113,79 +126,7 @@ console.log("🔤 フォント固定完了");
 
     await page.waitForTimeout(1500);
 
-    // 🔥 PDF環境で再分割（最重要）
-await page.evaluate(() => {
-
-  function splitByHeightStable(el, maxHeight = 660){
-
-    // 🔥 クローンを作る（ここが重要）
-    const measure = el.cloneNode(true);
-    measure.style.position = "absolute";
-    measure.style.visibility = "hidden";
-    measure.style.pointerEvents = "none";
-
-    el.parentElement.appendChild(measure);
-
-    const sentences = el.innerText.split(/(?<=。|！|？)/);
-
-    const pages = [];
-    let current = "";
-
-    sentences.forEach(sentence => {
-
-      measure.innerText = current + sentence;
-
-      if(measure.scrollHeight > maxHeight){
-
-        if(current.trim()){
-          pages.push(current.trim());
-        }
-
-        current = sentence;
-
-      } else {
-        current += sentence;
-      }
-
-    });
-
-    if(current.trim()){
-      pages.push(current.trim());
-    }
-
-    measure.remove(); // ←必ず削除
-
-    return pages;
-  }
-
-  const contents = document.querySelectorAll(".content");
-
-  contents.forEach(el => {
-
-    const parent = el.parentElement;
-
-    const pages = splitByHeightStable(el);
-
-    parent.innerHTML = "";
-
-    pages.forEach(p => {
-
-      const div = document.createElement("div");
-      div.className = "content";
-      div.innerText = p;
-
-      parent.appendChild(div);
-
-      // 🔥 最終チェック
-      if(div.scrollHeight > 660){
-        div.style.fontSize = "18px";
-      }
-
-    });
-
-  });
-
-});
+   
     // screen指定（重要）
     await page.emulateMedia({ media: "screen" });
     console.log("🖥️ media=screen適用");
