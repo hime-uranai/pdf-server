@@ -22,6 +22,7 @@ app.post("/pdf", async (req, res) => {
 
     console.log("🖥️ ブラウザ起動完了");
 
+    // ブラウザと同じ表示サイズ
     await page.setViewportSize({
       width: 1240,
       height: 1754
@@ -35,6 +36,9 @@ app.post("/pdf", async (req, res) => {
 
     console.log("🌐 実際に開くURL:", targetUrl);
 
+    // ======================
+    // ページ読み込み
+    // ======================
     await page.goto(targetUrl, {
       waitUntil: "domcontentloaded",
       timeout: 60000
@@ -42,6 +46,26 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📄 ページ読み込み完了");
 
+    // ======================
+    // フォント固定（明朝）
+    // ======================
+    await page.addStyleTag({
+      content: `
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap');
+
+        * {
+          font-family: 'Noto Serif JP', serif !important;
+        }
+      `
+    });
+
+    await page.evaluate(() => document.fonts.ready);
+
+    console.log("🔤 フォント固定完了");
+
+    // ======================
+    // DOM生成待ち
+    // ======================
     await page.waitForSelector("#result", {
       state: "attached",
       timeout: 30000
@@ -49,23 +73,47 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📦 #result検出");
 
-    await page.waitForFunction(() => {
-      const el = document.querySelector("#result");
-      return el && el.textContent.length > 50;
+    // ======================
+    // 幅固定（最重要）
+    // ======================
+    await page.evaluate(() => {
+      const el = document.querySelector('.content');
+      if (el) {
+        const width = el.clientWidth;
+        const style = document.createElement('style');
+        style.innerHTML = `.content { width: ${width}px !important; }`;
+        document.head.appendChild(style);
+      }
     });
 
-    console.log("📝 コンテンツ十分");
+    console.log("📏 幅固定完了");
 
+    // ======================
+    // 行間固定（ズレ防止）
+    // ======================
+    await page.addStyleTag({
+      content: `
+        .content {
+          line-height: 1.7 !important;
+        }
+      `
+    });
+
+    console.log("📐 行間固定完了");
+
+    // ======================
+    // テキスト確認（軽め）
+    // ======================
     await page.waitForFunction(() => {
       const el = document.querySelector("#result");
-      return el && el.offsetHeight > 1500;
-    }, { timeout: 30000 });
+      return el && el.textContent.length > 20;
+    });
 
-    console.log("📏 レイアウト高さOK");
+    console.log("📝 コンテンツ確認OK");
 
-    await page.evaluate(() => document.fonts.ready);
-    console.log("🔤 フォント読み込み完了");
-
+    // ======================
+    // 画像読み込み
+    // ======================
     await page.waitForFunction(() => {
       return Array.from(document.images)
         .every(img => img.complete && img.naturalHeight > 0);
@@ -73,12 +121,15 @@ app.post("/pdf", async (req, res) => {
 
     console.log("🖼️ 画像読み込み完了");
 
-    await page.waitForTimeout(3000);
+    // ======================
+    // 安定待ち
+    // ======================
+    await page.waitForTimeout(1500);
     console.log("⏳ 安定待ち完了");
 
-    await page.evaluate(() => window.scrollTo(0, 0));
-    console.log("🔝 スクロールリセット");
-
+    // ======================
+    // PDFモード
+    // ======================
     await page.evaluate(() => {
       document.documentElement.classList.add("pdf-mode");
       document.body.classList.add("pdf-mode");
@@ -86,11 +137,12 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📄 PDFモード適用");
 
-    await page.waitForTimeout(1500);
-
     await page.emulateMedia({ media: "screen" });
     console.log("🖥️ media=screen適用");
 
+    // ======================
+    // PDF生成
+    // ======================
     console.log("🟡 PDF生成開始");
 
     const pdf = await page.pdf({
