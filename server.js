@@ -46,7 +46,7 @@ app.post("/pdf", async (req, res) => {
     console.log("📄 ページ読み込み完了");
 
     // ======================
-    // フォント適用（明朝）
+    // フォント（明朝）
     // ======================
     await page.addStyleTag({
       content: `
@@ -59,13 +59,13 @@ app.post("/pdf", async (req, res) => {
 
     console.log("🔤 フォント適用");
 
-    // 🔥 フォント確定＋レイアウト確定（超重要）
+    // 🔥 フォント＆レイアウト確定
     await page.evaluate(async () => {
       await document.fonts.ready;
       document.body.offsetHeight;
     });
 
-    console.log("🔤 フォント＆レイアウト確定");
+    console.log("🔤 フォント確定");
 
     // ======================
     // DOM待ち
@@ -78,26 +78,31 @@ app.post("/pdf", async (req, res) => {
     console.log("📦 #result検出");
 
     // ======================
-    // 幅固定（最重要）
+    // 親コンテナ固定（最重要）
     // ======================
     await page.evaluate(() => {
-      const el = document.querySelector('.content');
+      const el = document.querySelector('#result');
       if (el) {
         const width = el.clientWidth;
         const style = document.createElement('style');
-        style.innerHTML = `.content { width: ${width}px !important; }`;
+        style.innerHTML = `
+          #result {
+            width: ${width}px !important;
+            box-sizing: border-box !important;
+          }
+        `;
         document.head.appendChild(style);
       }
     });
 
-    console.log("📏 幅固定完了");
+    console.log("📏 レイアウト固定完了");
 
     // ======================
     // 行間固定
     // ======================
     await page.addStyleTag({
       content: `
-        .content {
+        #result {
           line-height: 1.7 !important;
         }
       `
@@ -116,7 +121,7 @@ app.post("/pdf", async (req, res) => {
     console.log("🖼️ 画像読み込み完了");
 
     // ======================
-    // 軽く安定待ち
+    // 安定待ち
     // ======================
     await page.waitForTimeout(1500);
     console.log("⏳ 安定待ち完了");
