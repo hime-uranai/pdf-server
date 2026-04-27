@@ -58,13 +58,9 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📝 コンテンツ十分");
 
-    // 高さチェック（超重要）
-    await page.waitForFunction(() => {
-      const el = document.querySelector("#result");
-      return el && el.offsetHeight > 1500;
-    }, { timeout: 30000 });
+   
 
-    console.log("📏 レイアウト高さOK");
+   
 
     // フォント
     await page.evaluate(() => document.fonts.ready);
