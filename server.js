@@ -94,7 +94,7 @@ app.post("/pdf", async (req, res) => {
     console.log("📄 PDFモード適用");
 
     // PDFモード反映待ち
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(7000);
 
     // =========================
     // media設定
