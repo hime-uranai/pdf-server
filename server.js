@@ -35,7 +35,9 @@ app.post("/pdf", async (req, res) => {
 
     console.log("🌐 実際に開くURL:", targetUrl);
 
+    // =========================
     // ページ読み込み
+    // =========================
     await page.goto(targetUrl, {
       waitUntil: "domcontentloaded",
       timeout: 60000
@@ -43,46 +45,47 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📄 ページ読み込み完了");
 
-    // DOM生成待ち
+    // =========================
+    // result生成待ち（最低限）
+    // =========================
     await page.waitForSelector("#result", {
-  state: "attached",
-  timeout: 30000
-});
+      state: "attached",
+      timeout: 30000
+    });
+
     console.log("📦 #result検出");
 
-    // テキスト量チェック
-    await page.waitForFunction(() => {
-      const el = document.querySelector("#result");
-      return el && el.innerText.length > 50;
-    }, { timeout: 30000 });
-
-    console.log("📝 コンテンツ十分");
-
-   
-
-   
-
-    // フォント
+    // =========================
+    // フォント待機
+    // =========================
     await page.evaluate(() => document.fonts.ready);
     console.log("🔤 フォント読み込み完了");
 
-    // 画像
-   await page.waitForFunction(() => {
-  return Array.from(document.images)
-    .every(img => img.complete);
-});
+    // =========================
+    // 画像待機（軽め）
+    // =========================
+    await page.waitForFunction(() => {
+      return Array.from(document.images)
+        .every(img => img.complete);
+    });
 
     console.log("🖼️ 画像読み込み完了");
 
-    // 安定待ち
-    await page.waitForTimeout(2000);
+    // =========================
+    // 安定待ち（最重要）
+    // =========================
+    await page.waitForTimeout(5000);
     console.log("⏳ 安定待ち完了");
 
+    // =========================
     // スクロールリセット
+    // =========================
     await page.evaluate(() => window.scrollTo(0, 0));
     console.log("🔝 スクロールリセット");
 
-    // PDFモード
+    // =========================
+    // PDFモード適用
+    // =========================
     await page.evaluate(() => {
       document.documentElement.classList.add("pdf-mode");
       document.body.classList.add("pdf-mode");
@@ -90,13 +93,18 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📄 PDFモード適用");
 
-    await page.waitForTimeout(5000);
+    // PDFモード反映待ち
+    await page.waitForTimeout(2000);
 
-    // screen指定（重要）
+    // =========================
+    // media設定
+    // =========================
     await page.emulateMedia({ media: "screen" });
     console.log("🖥️ media=screen適用");
 
-    // 🔥 PDF生成
+    // =========================
+    // PDF生成
+    // =========================
     console.log("🟡 PDF生成開始");
 
     const pdf = await page.pdf({
