@@ -90,7 +90,7 @@ app.post("/pdf", async (req, res) => {
 
     console.log("📄 PDFモード適用");
 
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(5000);
 
     // screen指定（重要）
     await page.emulateMedia({ media: "screen" });
