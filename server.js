@@ -83,18 +83,9 @@ app.post("/pdf", async (req, res) => {
     await page.evaluate(() => window.scrollTo(0, 0));
     console.log("🔝 スクロールリセット");
 
-    // =========================
-    // PDFモード適用
-    // =========================
-    await page.evaluate(() => {
-      document.documentElement.classList.add("pdf-mode");
-      document.body.classList.add("pdf-mode");
-    });
+    
 
-    console.log("📄 PDFモード適用");
-
-    // PDFモード反映待ち
-    await page.waitForTimeout(7000);
+   
 
     // =========================
     // media設定
