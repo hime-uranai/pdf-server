@@ -51,21 +51,32 @@ app.post("/pdf", async (req, res) => {
     console.log("📦 #result検出");
 
     // テキスト量チェック
-   
+    await page.waitForFunction(() => {
+      const el = document.querySelector("#result");
+      return el && el.innerText.length > 50;
+    }, { timeout: 30000 });
 
-    
-   await page.waitForTimeout(5000);
-console.log("⏳ 安定待ち");
-    
+    console.log("📝 コンテンツ十分");
 
-    
+    // 高さチェック（超重要）
+    await page.waitForFunction(() => {
+      const el = document.querySelector("#result");
+      return el && el.offsetHeight > 1500;
+    }, { timeout: 30000 });
+
+    console.log("📏 レイアウト高さOK");
 
     // フォント
     await page.evaluate(() => document.fonts.ready);
     console.log("🔤 フォント読み込み完了");
 
-   
-  
+    // 画像
+    await page.waitForFunction(() => {
+      return Array.from(document.images)
+        .every(img => img.complete && img.naturalHeight > 0);
+    }, { timeout: 30000 });
+
+    console.log("🖼️ 画像読み込み完了");
 
     // 安定待ち
     await page.waitForTimeout(3000);
