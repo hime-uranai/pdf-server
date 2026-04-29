@@ -20,7 +20,11 @@ app.post("/pdf", async (req, res) => {
 
     const page = await browser.newPage();
 
-    console.log("🖥️ ブラウザ起動完了");
+page.on("console", msg => {
+  console.log("🧾 FRONT LOG:", msg.text());
+});
+
+console.log("🖥️ ブラウザ起動完了");
 
     await page.setViewportSize({
       width: 1240,
