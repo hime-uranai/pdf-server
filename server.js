@@ -20,9 +20,7 @@ app.post("/pdf", async (req, res) => {
 
     const page = await browser.newPage();
 
-page.on("console", msg => {
-  console.log("🧾 FRONT LOG:", msg.text());
-});
+
 
 console.log("🖥️ ブラウザ起動完了");
 
