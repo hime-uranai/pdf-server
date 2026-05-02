@@ -48,23 +48,24 @@ console.log("🖥️ ブラウザ起動完了");
 console.log("📄 ページ完全読み込み完了");
 
 await page.waitForSelector("#result .screen", {
-  state: "attached",
-  timeout: 30000
+  timeout: 60000
 });
 
 await page.waitForFunction(() => window.PDF_READY === true, {
   timeout: 30000
 });
 
-await page.waitForTimeout(3000);
-
-    console.log("📦 #result検出");
-
-    // =========================
+ // =========================
     // フォント待機
     // =========================
     await page.evaluate(() => document.fonts.ready);
     console.log("🔤 フォント読み込み完了");
+    
+await page.waitForTimeout(3000);
+
+    console.log("📦 #result検出");
+
+   
 
     // =========================
     // 画像待機（軽め）
