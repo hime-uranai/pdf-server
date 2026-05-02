@@ -20,9 +20,7 @@ app.post("/pdf", async (req, res) => {
 
     const page = await browser.newPage();
 
-
-
-console.log("🖥️ ブラウザ起動完了");
+    console.log("🖥️ ブラウザ起動完了");
 
     await page.setViewportSize({
       width: 1240,
@@ -41,44 +39,40 @@ console.log("🖥️ ブラウザ起動完了");
     // ページ読み込み
     // =========================
     await page.goto(targetUrl, {
-  waitUntil: "networkidle0",
-  timeout: 60000
-});
+      waitUntil: "networkidle0",
+      timeout: 60000
+    });
 
-console.log("📄 ページ完全読み込み完了");
+    console.log("📄 ページ完全読み込み完了");
 
-await page.waitForSelector("#result .screen", {
-  timeout: 60000
-});
+    await page.waitForSelector("#result .screen", {
+      timeout: 60000
+    });
 
-await page.waitForFunction(() => window.PDF_READY === true, {
-  timeout: 30000
-});
+    await page.waitForFunction(() => window.PDF_READY === true, {
+      timeout: 30000
+    });
 
- // =========================
+    // =========================
     // フォント待機
     // =========================
     await page.evaluate(() => document.fonts.ready);
     console.log("🔤 フォント読み込み完了");
-    
-await page.waitForTimeout(3000);
 
+    await page.waitForTimeout(3000);
     console.log("📦 #result検出");
 
-   
-
     // =========================
-    // 画像待機（軽め）
+    // 画像待機
     // =========================
     await page.waitForFunction(() => {
-      return Array.from(document.images)
-        .every(img => img.complete);
+      return Array.from(document.images).every(img => img.complete);
     });
 
     console.log("🖼️ 画像読み込み完了");
 
     // =========================
-    // 安定待ち（最重要）
+    // 安定待機
     // =========================
     await page.waitForTimeout(5000);
     console.log("⏳ 安定待ち完了");
@@ -88,10 +82,6 @@ await page.waitForTimeout(3000);
     // =========================
     await page.evaluate(() => window.scrollTo(0, 0));
     console.log("🔝 スクロールリセット");
-
-    
-
-   
 
     // =========================
     // media設定
@@ -107,7 +97,12 @@ await page.waitForTimeout(3000);
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: 0, bottom: 0, left: 0, right: 0 }
+      margin: {
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0
+      }
     });
 
     console.log("🟢 PDF生成完了");
@@ -122,16 +117,23 @@ await page.waitForTimeout(3000);
     console.log("📤 レスポンス送信完了");
 
   } catch (err) {
+
     console.error("🔥 PLAYWRIGHT ERROR:", err);
     res.status(500).send(err.toString());
 
   } finally {
+
     if (browser) {
       await browser.close();
       console.log("🧹 ブラウザクローズ");
     }
+
     console.log("====================================");
   }
 });
 
-app.listen(10000, () => console.log("🚀 Server running"));
+const PORT = process.env.PORT || 10000;
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
